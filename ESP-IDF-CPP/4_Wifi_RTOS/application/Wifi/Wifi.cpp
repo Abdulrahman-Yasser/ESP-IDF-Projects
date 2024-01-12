@@ -9,7 +9,10 @@ char Wifi::mac_add_cstr[]{};
 SemaphoreHandle_t Wifi::first_call_mutx{nullptr};
 bool Wifi::first_call{true};
 
-Wifi::Wifi(void){
+Wifi::Wifi(void)
+{
+    bool it_worked = false;
+
     if(!first_call_mutx) 
     {
         first_call_mutx = xSemaphoreCreateMutex();
@@ -18,11 +21,24 @@ Wifi::Wifi(void){
     }
 
 
-    if(first_call && pdPASS == xSemaphoreTake(first_call_mutx, pdSECOND)){
-        if (ESP_OK != _get_MAC()) esp_restart();
-        first_call  = false;
-        xSemaphoreGive(first_call_mutx);
+    for(int i = 0; i < 3; i++)
+    {
+        if(pdPASS == xSemaphoreTake(first_call_mutx, pdSECOND))
+        {
+            if(first_call)
+            {
+                if (ESP_OK != _get_MAC()) esp_restart();
+                first_call  = false;
+            }
+            xSemaphoreGive(first_call_mutx);
+            it_worked = true;
+            break;
+        }else{
+            continue;
+        }
     }
+
+    if(!it_worked) esp_restart();
 }
 
 esp_err_t Wifi::_get_MAC(void)
