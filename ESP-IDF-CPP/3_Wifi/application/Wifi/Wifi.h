@@ -16,25 +16,17 @@ public:
         INITIALIZED,
         WAITING_FOR_CREDENTIALS,
         READY_TO_CONNECT,
+        READY_TO_RECONNECT,
         CONNECTING,
-        WAITING_FOR_IT,
+        WAITING_FOR_IP,
         CONNECTED,
         DISCONNECTED,
         ERROR
     };
 
-    Wifi(void){
-        /* 
-        we are the only thread running that line of code once we go 
-        out of scope it get released, and the blocked thread will run it.
-        */
-        std::lock_guard<std::mutex> guard(first_call_mutx);     
-        // if(!first_call){
-        if(!first_call){
-            if (ESP_OK != _get_MAC()) esp_restart();
-            first_call = true; 
-        }
-    }
+
+    
+    Wifi(void);
 
     esp_err_t init(void);   // Set everything up
     esp_err_t begin(void);  // Start Wifi, connect, etc
