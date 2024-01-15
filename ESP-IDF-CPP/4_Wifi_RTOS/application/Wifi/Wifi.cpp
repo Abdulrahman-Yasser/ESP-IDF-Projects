@@ -46,6 +46,8 @@ esp_err_t Wifi::_get_MAC(void)
     // it never get destroyed
     uint8_t mac_byte_buffer[6]{};
     
+    
+
     const esp_err_t status{esp_efuse_mac_get_default(mac_byte_buffer)};
 
     if(ESP_OK == status){

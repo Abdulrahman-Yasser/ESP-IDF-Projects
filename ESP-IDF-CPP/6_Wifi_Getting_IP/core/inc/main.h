@@ -11,8 +11,8 @@
 
 class Main final{
     public :
+        WIFI::Wifi my_wifi{};
         Gpio::GpioOutput Led{GPIO_NUM_4, true};
-        WIFI::Wifi my_wifi;
         esp_err_t setup(void);
         void run(void);
 };

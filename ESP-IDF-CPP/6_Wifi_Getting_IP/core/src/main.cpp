@@ -9,6 +9,8 @@
 
 #include "main.h"
 
+#include "nvs.h"
+#include "nvs_flash.h"
 
 
 static Main my_main;
@@ -27,12 +29,20 @@ extern "C" void app_main()
 
 esp_err_t Main::setup(void){
 	esp_err_t status{ESP_OK};
+	ESP_LOGE("MAIN", "Calling nvs_flash_init() from main");
+	nvs_flash_init();
+	ESP_LOGE("MAIN", "Called nvs_flash_init() from main");
 	printf("Hello\nIt is set-up !!\n");
 	status |= Led.init();
 	status |= my_wifi.init();
-
-	if(ESP_OK == status) status |= my_wifi.begin();
-
+	nvs_flash_init();
+	if(ESP_OK == status)
+	{
+		status |= my_wifi.begin();
+	}else
+	{
+		ESP_LOGE("MAIN","Problem in init \n");
+	}
 	return status;
 }
 

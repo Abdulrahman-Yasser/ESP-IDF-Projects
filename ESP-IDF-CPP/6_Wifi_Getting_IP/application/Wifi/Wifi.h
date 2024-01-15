@@ -1,12 +1,22 @@
 #pragma once
 
-#include "esp_wifi.h"
 #include <mutex>
-#include "esp_netif.h"
-#include "esp_event.h"
-#include "esp_log.h"
 #include <cstring>
 #include <algorithm>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_log.h"
+#include "esp_netif.h"
+#include "esp_event.h"
+#include "esp_wifi.h"
+#include "nvs.h"
+#include "nvs_flash.h"
+
+#include "lwip/err.h"
+#include "lwip/sys.h"
 
 namespace WIFI
 {
@@ -27,6 +37,12 @@ public:
     };
 
     Wifi(void);
+    ~Wifi(void)                     = default;
+    Wifi(const Wifi&)               = default;
+    Wifi(Wifi&&)                    = default;
+    Wifi& operator=(const Wifi&)    = default;
+    Wifi& operator=(Wifi&&)         = default;
+    
     esp_err_t init(void);   // Set everything up
     esp_err_t begin(void);  // Start Wifi, connect, etc
 
@@ -35,15 +51,17 @@ public:
     constexpr static const char* get_MAC(void){ return mac_add_cstr; }
 private:
     static char mac_add_cstr[13];
+
     static std::mutex init_mutex;
     static std::mutex connect_mutx;
     static std::mutex state_mutx;
+    
     static state_e _state;
     static wifi_init_config_t wifi_init_config;
     static wifi_config_t wifi_config;
     constexpr static const char* _log_tag{"WiFi"};
-    constexpr static const char* ssid{"GreenGiant-TEST"};
-    constexpr static const char* password{"GreenGiant"};
+    constexpr static const char* ssid{"abdosGalaxy"};
+    constexpr static const char* password{"123412344"};
 
     static esp_err_t _init(void);
     void state_machine(void);
