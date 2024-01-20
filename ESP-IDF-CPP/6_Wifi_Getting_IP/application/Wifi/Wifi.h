@@ -47,7 +47,7 @@ public:
     esp_err_t begin(void);  // Start Wifi, connect, etc
 
     // return the state but noone can change it.
-    constexpr const state_e& get_state(void){ return _state;}
+    constexpr static const state_e& get_state(void){ return _state;}
     constexpr static const char* get_MAC(void){ return mac_add_cstr; }
 private:
     static char mac_add_cstr[13];

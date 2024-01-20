@@ -21,7 +21,7 @@ extern "C" void app_main()
 	my_main.setup();
 
 	while(true){
-		my_main.run();
+		my_main.loop();
 	}
 }
 
@@ -37,21 +37,21 @@ esp_err_t Main::setup(void){
 	status |= my_wifi.init();
 	nvs_flash_init();
 	if(ESP_OK == status)
-	{
 		status |= my_wifi.begin();
-	}else
-	{
-		ESP_LOGE("MAIN","Problem in init \n");
-	}
+	if(ESP_OK == status)
+		status |= sntp.init();
 	return status;
 }
 
-void Main::run(void){
-	printf("LED on");
+void Main::loop(void){
+	ESP_LOGI("MAIN", "LED on");
 	Led.set(true);
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-	printf("LED off");
+	ESP_LOGI("MAIN", "LED off");
 	Led.set(false);
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
+
+
+// TODO know how tf lock_guard works, because it lock, return, then continue working.
