@@ -10,6 +10,7 @@ std::mutex      Wifi::init_mutex{};
 std::mutex      Wifi::connect_mutx{};
 // we don't change the state unless we own that mutex
 std::mutex      Wifi::state_mutx{};
+NVS::Nvs        Wifi::my_nvs{};
 
 
 Wifi::state_e   Wifi::_state{state_e::NOT_INITIALIZED};

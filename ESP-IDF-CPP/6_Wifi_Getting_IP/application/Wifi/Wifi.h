@@ -18,6 +18,8 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+#include "../Nvs32/Nvs32.h"
+
 namespace WIFI
 {
 class Wifi
@@ -55,7 +57,7 @@ private:
     static std::mutex init_mutex;
     static std::mutex connect_mutx;
     static std::mutex state_mutx;
-    
+    static NVS::Nvs my_nvs;
     static state_e _state;
     static wifi_init_config_t wifi_init_config;
     static wifi_config_t wifi_config;
