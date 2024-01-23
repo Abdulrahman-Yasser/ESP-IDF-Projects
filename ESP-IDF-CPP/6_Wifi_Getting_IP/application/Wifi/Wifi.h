@@ -62,8 +62,8 @@ private:
     static wifi_init_config_t wifi_init_config;
     static wifi_config_t wifi_config;
     constexpr static const char* _log_tag{"WiFi"};
-    constexpr static const char* ssid{"abdosGalaxy"};
-    constexpr static const char* password{"123412344"};
+    constexpr static const char* ssid{"WE_BCD7E9"};
+    constexpr static const char* password{"j9a10603"};
 
     static esp_err_t _init(void);
     void state_machine(void);

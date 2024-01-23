@@ -19,38 +19,41 @@ public:
         _log_tag{partition_name}, _partition_name{partition_name}{ }
 
     [[nodiscard]] esp_err_t init(void)
-        { return _open(_partition_name, handle);}
+        { return _open(_partition_name, &handle);}
 
     // with respect to a type
     template <typename T>
     [[nodiscard]] esp_err_t get(const char* const key, T& output)
-        { return _get_buf(handle, key, output, 1) ;}
+        { 
+            size_t len = 1;
+            return _get_buf(handle, key, &output, len) ;
+        }
 
     template <typename T>
-    [[nodiscard]] esp_err_t set(const char* const key, const T input)
-        { return _set_buf(handle, key, input, 1) ;}
+    [[nodiscard]] esp_err_t set(const char* const key, const T& input)
+        { return _set_buf(handle, key, &input, 1) ;}
 
     template <typename T>
-    [[nodiscard]] esp_err_t verify(const char* const key, const T input)
-        { return _verify_buf(handle, key, input, 1) ;}
+    [[nodiscard]] esp_err_t verify(const char* const key, const T& input)
+        { return _verify_buf(handle, key, &input, 1) ;}
 
 
     // with respect to a pointer
     template <typename T>
-    [[nodiscard]] esp_err_t get_buffer(const char* const key, T* output, const size_t len)
+    [[nodiscard]] esp_err_t get_buffer(const char* const key, T* output, size_t &len)
         { return _get_buf(handle, key, output, len) ;}
 
     template <typename T>
-    [[nodiscard]] esp_err_t set_buffer(const char* const key, const T input, const size_t len)
+    [[nodiscard]] esp_err_t set_buffer(const char* const key, const T* input, const size_t len)
         { return _set_buf(handle, key, input, len) ;}
 
     template <typename T>
-    [[nodiscard]] esp_err_t verify_buffer(const char* const key, const T input, size_t& len)
+    [[nodiscard]] esp_err_t verify_buffer(const char* const key, const T* input, size_t& len)
         { return _verify_buf(handle, key, input, len) ;}
 
 private:
-    [[nodiscard]] static esp_err_t _open(const char* const partition_name, nvs_handle_t handle)
-        {return nvs_open(partition_name,NVS_READWRITE, &handle) ;}
+    [[nodiscard]] static esp_err_t _open(const char* const partition_name, nvs_handle_t *handle)
+        {return nvs_open(partition_name,NVS_READWRITE, handle) ;}
 
 
     template <typename T>
@@ -109,12 +112,13 @@ private:
         esp_err_t status{ESP_FAIL};
         if(nullptr == key || 0 == strlen(key) || nullptr == output || len == 0)
         {
-            return ESP_ERR_INVALID_ARG;
+            status = ESP_ERR_INVALID_ARG;
         }
         else
         {
             status = nvs_get_blob(handle, key, output, &n_bytes);
-            len = n_bytes / sizeof(T);
+            if(ESP_OK == status)
+                len = n_bytes / sizeof(T);
         }
         return status;
     }
@@ -130,7 +134,7 @@ private:
         }
         else
         {
-            status = nvs_set_blob(handle, key, input, &n_bytes);
+            status = nvs_set_blob(handle, key, input, n_bytes);
             if(ESP_OK == status)    status = nvs_commit(handle);
             if(ESP_OK == status)    status = _verify_buf(handle, key, input, len);
         }

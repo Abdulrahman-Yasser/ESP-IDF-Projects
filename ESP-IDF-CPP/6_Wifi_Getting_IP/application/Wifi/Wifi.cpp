@@ -8,15 +8,16 @@ char            Wifi::mac_add_cstr[]{};
 /* Mutexes */
 std::mutex      Wifi::init_mutex{};
 std::mutex      Wifi::connect_mutx{};
+
 // we don't change the state unless we own that mutex
 std::mutex      Wifi::state_mutx{};
 NVS::Nvs        Wifi::my_nvs{};
 
 
-Wifi::state_e   Wifi::_state{state_e::NOT_INITIALIZED};
+Wifi::state_e       Wifi::_state{state_e::NOT_INITIALIZED};
 
-wifi_init_config_t Wifi::wifi_init_config= WIFI_INIT_CONFIG_DEFAULT()
-wifi_config_t   Wifi::wifi_config{};
+wifi_init_config_t  Wifi::wifi_init_config= WIFI_INIT_CONFIG_DEFAULT()
+wifi_config_t       Wifi::wifi_config{};
 
 
 //TODO be ausome
@@ -174,6 +175,63 @@ esp_err_t Wifi::_init(void)
     std::lock_guard<std::mutex> state_guard(state_mutx);
     if(state_e::NOT_INITIALIZED == _state)
     {
+        constexpr static const char*    nvs_tag{"Nvs"};
+
+        constexpr static const char*    key{"wifi"};
+        constexpr static const char*    data{"Hello world"};
+        constexpr static const size_t   len_in{strlen(data) + 1};
+        char                            in_nvs[len_in]{};
+        size_t                          len_out{len_in} ;
+
+
+        ESP_LOGI(nvs_tag, "Init ");
+        esp_err_t _status_{my_nvs.init()};
+        ESP_LOGI(nvs_tag, "%s", esp_err_to_name(_status_));
+
+        ESP_LOGI(nvs_tag, "Getting the key %s", key);
+        _status_ = my_nvs.get_buffer(key, in_nvs, len_out);
+        ESP_LOGI(nvs_tag, "%s which is enum of %d", esp_err_to_name(_status_), _status_);
+
+        if(ESP_OK == _status_)
+        {
+            ESP_LOGI(nvs_tag, "data is : %s with length : %d", in_nvs, len_out);
+        }
+        else
+        {
+            _status_ = my_nvs.set_buffer(key, data, len_in);
+            ESP_LOGI(nvs_tag, "Now it should be written !!! %s which is enum of %d", esp_err_to_name(_status_), _status_);
+        }
+
+        // Another example in storing data in nvs
+        constexpr static const char*    key_2{"counter"};
+        size_t                          my_ctr{0};
+        size_t&                         reading_counter{my_ctr};
+
+        _status_ = my_nvs.get(key_2, reading_counter);
+
+        if(ESP_OK == _status_)
+        {
+            ESP_LOGI(nvs_tag, "data is : %d", reading_counter);
+            my_ctr++;
+            _status_ = my_nvs.set(key_2, my_ctr);
+            if(ESP_OK == _status_)
+                ESP_LOGI(nvs_tag, "Wrote the new value which is : %d", my_ctr);
+        }
+        else
+        {
+            _status_ = my_nvs.set(key_2, my_ctr);
+            if(ESP_OK == _status_)
+                ESP_LOGI(nvs_tag, "Now it should be written !!! %s which is enum of %d", esp_err_to_name(_status_), _status_);
+            else
+                ESP_LOGI(nvs_tag, "Wow, couldn't really write it !!! %s which is enum of %d", esp_err_to_name(_status_), _status_);
+        }
+
+
+
+
+
+
+
         ESP_LOGE(_log_tag, "%s:%d Calling :tcpip_adapter_init() \n", __func__, __LINE__);
         tcpip_adapter_init();
         nvs_flash_init();
